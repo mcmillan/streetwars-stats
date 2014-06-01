@@ -5,3 +5,7 @@
     %title StreetWars Stats
   %body
     woo yeah
+    - fucktards.each do |fucktard|
+      %strong
+        @#{fucktard.user.screen_name}
+      %p=fucktard.text
