@@ -7,5 +7,5 @@
     woo yeah
     - fucktards.each do |fucktard|
       %strong
-        @#{fucktard.user.screen_name}
-      %p=fucktard.text
+        @#{fucktard[:screen_name]}
+      %p=fucktard[:text]
