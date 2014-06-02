@@ -18,11 +18,11 @@ class Assassin
   def initialize(sw_assassin)
     self.name = sw_assassin[:user][:username].strip
     self.team_leader = sw_assassin[:is_team_leader]
-    self.alive = sw_assassin[:is_alive]
+    self.alive = rand(0..1) == 0 # sw_assassin[:is_alive]
     self.kills = sw_assassin[:kill_count]
     self.assassin_token = sw_assassin[:unique_token]
     self.user_token = sw_assassin[:user][:unique_token]
-    self.avatar = sw_assassin[:user][:avatar] ? sw_assassin[:user][:avatar][:s3_medium] : nil
+    self.avatar = sw_assassin[:user][:avatar] ? sw_assassin[:user][:avatar][:s3_medium] : 'http://s3.amazonaws.com/streetwars-dev/web/no_image_medium_tri.jpg'
   end
 
   def to_json(*args)
@@ -65,7 +65,7 @@ class Team
   end
 
   def alive
-    assassins.map { |a| a.alive }.count
+    assassins.select(&:alive).count
   end
 
   def dead
@@ -92,7 +92,7 @@ class Team
 
   def to_json(*args)
     {
-      name: name,
+      name: name.downcase == 'solo agent' ? team_leader.name : name,
       token: token,
       kills: kills,
       alive: alive,

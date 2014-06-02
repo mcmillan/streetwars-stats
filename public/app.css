@@ -1,0 +1,68 @@
+.team {
+  margin-bottom: 20px;
+}
+
+.team.out {
+  opacity: 0.5;
+}
+
+.team .rank {
+  text-align: center;
+  font-size: 24px;
+}
+
+.team.out h2,
+.team .player.out .name {
+  text-decoration: line-through;
+}
+
+.team h2 {
+  margin-top: 0;
+}
+
+.team .counter {
+  width: 25%;
+  float: left;
+  text-align: center;
+}
+
+.team .counter .count {
+  font-size: 20px;
+}
+
+.team .player {
+  width: 25%;
+  float: left;
+  text-align: center;
+  text-decoration: none;
+}
+
+.team .players .wrapper {
+  background: rgba(255, 255, 255, 0.75);
+  padding: 14px 0;
+  border: 1px #ddd solid;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
+}
+
+.team .player.out {
+  -webkit-filter: grayscale(1);
+}
+
+.team .player .image img {
+  width: 50%;
+}
+
+.team .player .name {
+  font-weight: bold;
+}
+
+.team .player .kills {
+  font-size: 85%;
+  text-transform: uppercase;
+}
+
+.team .players {
+  background-image: url('http://s3.amazonaws.com/streetwars-dev/web/bk-6p-w.png');
+  padding: 18px;
+  border-radius: 10px;
+}
