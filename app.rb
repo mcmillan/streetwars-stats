@@ -81,7 +81,7 @@ class Team
   end
 
   def competing?
-    dead == size || !team_leader.alive
+    dead != size && team_leader.alive
   end
 
   def lethality
