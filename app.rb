@@ -6,61 +6,142 @@ Dotenv.load
 # Use redis for a bit of simple caching
 $redis = Redis.new
 
-set :server, 'webrick'
+class Assassin
+  attr_accessor :name
+  attr_accessor :team_leader
+  attr_accessor :alive
+  attr_accessor :kills
+  attr_accessor :assassin_token
+  attr_accessor :user_token
+  attr_accessor :avatar
 
-# Pulls stats from the (probably not meant to be public) StreetWars API
-# Will stop doing this if the commanders get angry with us
-# Hope we don't get disqualified (it's not malicious!)
-# TODO: Implement caching so we don't nail their Heroku dynos
-def kill_counts
-  return JSON.parse($redis[:kill_counts]) if $redis[:kill_counts]
-
-  stats = HTTParty.get('http://www.streetwars.net/api/games/1/stats')
-  stats = stats.parsed_response
-  stats = {
-    total: stats['assassins_count'],
-    alive: stats['assassins_alive_count'],
-    dead: stats['kills_count']
-  }
-
-  $redis[:kill_counts] = stats.to_json
-  $redis.expire(:kill_counts, 300) # 5 minutes
-
-  stats
-end
-
-# Pulls public tweets about StreetWars... there's a staggering number of people
-# talking about how they "just got their assignment, OH WOW" so this will
-# expose them. I should probably be in this list as I'm publishing this code
-# in a public GitHub repo under my own name. Fucktard.
-# TODO: Implement caching so Twitter don't rate limit us
-def fucktards
-  # return JSON.parse($redis[:fucktards]) if $redis[:fucktards]
-
-  twitter_client = Twitter::REST::Client.new do |config|
-    config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
-    config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
-    config.access_token        = ENV['TWITTER_ACCESS_TOKEN']
-    config.access_token_secret = ENV['TWITTER_ACCESS_TOKEN_SECRET']
+  def initialize(sw_assassin)
+    self.name = sw_assassin[:user][:username].strip
+    self.team_leader = sw_assassin[:is_team_leader]
+    self.alive = sw_assassin[:is_alive]
+    self.kills = sw_assassin[:kill_count]
+    self.assassin_token = sw_assassin[:unique_token]
+    self.user_token = sw_assassin[:user][:unique_token]
+    self.avatar = sw_assassin[:user][:avatar] ? sw_assassin[:user][:avatar][:s3_medium] : nil
   end
 
-  fucktards = twitter_client.search(
-    'streetwars OR @shadowgov -#4BangersProduction +exclude:retweets'
-  ).to_a
-
-  fucktards.map! do |fucktard|
+  def to_json(*args)
     {
-      text: fucktard.text,
-      screen_name: fucktard.user.screen_name
-    }
+      name: name,
+      team_leader: team_leader,
+      alive: alive,
+      kills: kills,
+      assassin_token: assassin_token,
+      user_token: user_token,
+      avatar: avatar
+    }.to_json(*args)
+  end
+end
+
+class Team
+  attr_accessor :name
+  attr_accessor :assassins
+  attr_accessor :token
+
+  def initialize(sw_team)
+    self.name = sw_team[:display_name]
+    self.token = sw_team[:unique_token]
+    self.assassins = []
+    sw_team[:registered_assassins].each do |a|
+      self.assassins << Assassin.new(a)
+    end
   end
 
-  $redis[:fucktards] = fucktards.to_json
-  $redis.expire(:fucktards, 300)
+  def team_leader
+    assassins.find(&:team_leader) || assassins.first
+  end
 
-  fucktards
+  def kills
+    assassins.map(&:kills).reduce(&:+)
+  end
+
+  def size
+    assassins.count
+  end
+
+  def alive
+    assassins.map { |a| a.alive }.count
+  end
+
+  def dead
+    size - alive
+  end
+
+  def solo?
+    size <= 1
+  end
+
+  def ensemble?
+    !solo?
+  end
+
+  def competing?
+    dead == size || !team_leader.alive
+  end
+
+  def lethality
+    return 0 if size <= 0
+
+    kills.to_f / size.to_f
+  end
+
+  def to_json(*args)
+    {
+      name: name,
+      token: token,
+      kills: kills,
+      alive: alive,
+      dead: dead,
+      size: size,
+      solo: solo?,
+      competing: competing?,
+      lethality: lethality,
+      assassins: assassins
+    }.to_json(*args)
+  end
 end
+
+def game
+  return JSON.parse($redis[:game], symbolize_names: true) if $redis[:game]
+
+  game = HTTParty.get('http://www.streetwars.net/api/games/1').parsed_response.to_json
+
+  $redis[:game] = game
+  $redis.expire(:game, 600)
+
+  JSON.parse($redis[:game], symbolize_names: true)
+end
+
+def stats
+  teams = game[:public_registered_teams]
+
+  teams.map! { |t| Team.new(t) }
+  teams.sort! do |a, b|
+    if a.lethality > b.lethality
+      -1
+    elsif a.lethality < b.lethality
+      1
+    else
+      b.size <=> a.size
+    end
+  end
+
+  teams
+end
+
+set :bind, '0.0.0.0'
+set :server, :puma
 
 get '/' do
-  haml :index, kill_counts: kill_counts, fucktards: fucktards
+  haml :index
+end
+
+get '/teams' do
+  content_type :json
+  JSON.pretty_generate(stats)
 end
