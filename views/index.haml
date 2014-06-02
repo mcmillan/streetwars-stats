@@ -3,27 +3,29 @@
   %head
     %meta{charset: 'utf-8'}
     %title StreetWars Stats
+    %meta{name: 'viewport', content: 'width=device-width; initial-scale=1.0; maximum-scale=1.0;'}
     %link{rel: 'stylesheet', href: '//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'}
     %link{rel: 'stylesheet', href: '/app.css'}
   %body
-    .container
-      %h1.page-header StreetWars Stats
-      %p
-        The Mustache Mainframe&trade; (streetwars.net) is great, but it doesn't
-        actually provide you a way of seeing who's the most dangerous player/team.
-      %p
-        This site lists everyone in StreetWars ordered by their
-        %em lethality
-        \- the amount of kills they've made divided by the number of people in
-        their team. For example, a team with 4 people but only 1 kill is
-        significantly less lethal than a solo player with 1 kill. If two teams
-        have the same lethality, the bigger team will appear higher in this list as they have
-        more resource to increase their killing power. Science, bitches!
-      %p
-        %strong
-          \- the Bureau, with love
+    .hero
+      .container
+        %h1.page-header StreetWars Stats
+        %p
+          The Mustache Mainframe&trade; (streetwars.net) is great, but it doesn't
+          actually provide you a way of seeing who's the most dangerous player/team.
+        %p
+          This site lists everyone in StreetWars ordered by their
+          %em lethality
+          \- the amount of kills they've made divided by the number of people in
+          their team. For example, a team with 4 people but only 1 kill is
+          significantly less lethal than a solo player with 1 kill. If two teams
+          have the same lethality, the bigger team will appear higher in this list as they have
+          more resource to increase their killing power. Science, bitches!
+        %p
+          %strong
+            \- the Bureau, with love
 
-      %hr
+    .container
       .teams
         %p.text-center Crunching data, hold up...
         .progress.progress-striped.active
