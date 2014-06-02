@@ -18,7 +18,7 @@ class Assassin
   def initialize(sw_assassin)
     self.name = sw_assassin[:user][:username].strip
     self.team_leader = sw_assassin[:is_team_leader]
-    self.alive = rand(0..1) == 0 # sw_assassin[:is_alive]
+    self.alive = sw_assassin[:is_alive]
     self.kills = sw_assassin[:kill_count]
     self.assassin_token = sw_assassin[:unique_token]
     self.user_token = sw_assassin[:user][:unique_token]
