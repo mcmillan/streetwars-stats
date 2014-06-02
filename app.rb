@@ -112,7 +112,7 @@ def game
   game = HTTParty.get('http://www.streetwars.net/api/games/1').parsed_response.to_json
 
   $redis[:game] = game
-  $redis.expire(:game, 600)
+  $redis.expire(:game, 60)
 
   JSON.parse($redis[:game], symbolize_names: true)
 end
