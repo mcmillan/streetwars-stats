@@ -10,5 +10,4 @@ angular.module 'streetwars-stats', []
 .directive 'teamList', ->
   restrict: 'E'
   templateUrl: '/team.html'
-  scope:
-    team: '='
+  scope: '='

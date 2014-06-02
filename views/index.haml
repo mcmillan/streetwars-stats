@@ -3,35 +3,43 @@
   %head
     %meta{charset: 'utf-8'}
     %title StreetWars Stats
+    %meta{name: 'viewport', content: 'width=device-width; initial-scale=1.0; maximum-scale=1.0;'}
     %link{rel: 'stylesheet', href: '//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'}
-    %link{rel: 'stylesheet', href: 'css/app.css'}
+    %link{rel: 'stylesheet', href: 'app.css'}
+
+  %body{'ng-app' => 'streetwars-stats', 'ng-controller' => 'StatsCtrl'}
+    .hero
+      .container
+        %h1.page-header StreetWars Stats
+        %p
+          The Mustache Mainframe&trade; (streetwars.net) is great, but it doesn't
+          actually provide you a way of seeing who's the most dangerous player/team.
+        %p
+          This site lists everyone in StreetWars ordered by their
+          %em lethality
+          \- the amount of kills they've made divided by the number of people in
+          their team. For example, a team with 4 people but only 1 kill is
+          significantly less lethal than a solo player with 1 kill. If two teams
+          have the same lethality, the bigger team will appear higher in this list as they have
+          more resource to increase their killing power. Science, bitches!
+        %p
+          %strong
+            \- the Bureau, with love
+
+    .container{'ng-if' => '!teams'}
+      .teams
+        %p.text-center Crunching data, hold up...
+        .progress.progress-striped.active
+          .progress-bar{style: 'width: 100%;'}
+
+    .container{'ng-if' => 'teams'}
+      .ordering{'ng-if' => 'false'}
+        %span Order By
+        %button{class: "btn {{pair[0] == predicate ? 'btn-default' : 'btn-link'}}", 'ng-click' => 'predicate = p[0]', 'ng-repeat' => "pair in [['+name', 'Name'], ['-lethality', 'Lethality'], ['size', 'Size'], ['-kills', 'Kills']]"} {{pair[1]}}
+
+      %team-list{class: 'teams', 'ng-repeat' => 'team in teams | orderBy:predicate'}
 
     %script{src: 'bower/jquery/dist/jquery.min.js'}
     %script{src: 'bower/angular/angular.min.js'}
     %script{src: 'js/app.js'}
 
-  %body{'ng-app' => 'streetwars-stats', 'ng-controller' => 'StatsCtrl'}
-    .intro
-      .container
-        %h1.page-header streetwars stats
-        %p
-          the mustache mainframe&trade; (streetwars.net) is great, but it doesn't
-          actually provide you a way of seeing who's the most dangerous player/team.
-        %p
-          this site lists everyone in streetwars ordered by their
-          %em lethality
-          \- the amount of kills they've made divided by the number of people in
-          their team. for example, a team with 4 people but only 1 kill is
-          significantly less lethal than a solo player with 1 kill. if two teams
-          have the same lethality, the bigger team will appear higher as they have
-          more resource to increase their killing power. science, bitches!
-
-    .container
-      %div{class: 'ordering'}
-        %span Order By
-        %button{'ng-click' => 'predicate = "+name"'} Name
-        %button{'ng-click' => 'predicate = "lethality"'} Lethality
-        %button{'ng-click' => 'predicate = "size"'} Size
-        %button{'ng-click' => 'predicate = "kills"'} Kills
-
-      %team-list{team: 'team', 'ng-repeat' => 'team in teams | orderBy:predicate'}

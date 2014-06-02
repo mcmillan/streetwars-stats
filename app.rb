@@ -4,7 +4,7 @@ Bundler.require
 Dotenv.load
 
 # Use redis for a bit of simple caching
-$redis = Redis.new
+$redis = Redis.new(url: ENV['REDISTOGO_URL'])
 
 class Assassin
   attr_accessor :name
@@ -22,7 +22,7 @@ class Assassin
     self.kills = sw_assassin[:kill_count]
     self.assassin_token = sw_assassin[:unique_token]
     self.user_token = sw_assassin[:user][:unique_token]
-    self.avatar = sw_assassin[:user][:avatar] ? sw_assassin[:user][:avatar][:s3_medium] : nil
+    self.avatar = sw_assassin[:user][:avatar] ? sw_assassin[:user][:avatar][:s3_medium] : 'http://s3.amazonaws.com/streetwars-dev/web/no_image_medium_tri.jpg'
   end
 
   def to_json(*args)
@@ -65,7 +65,7 @@ class Team
   end
 
   def alive
-    assassins.map { |a| a.alive }.count
+    assassins.select(&:alive).count
   end
 
   def dead
@@ -92,7 +92,7 @@ class Team
 
   def to_json(*args)
     {
-      name: name,
+      name: name.downcase == 'solo agent' ? team_leader.name : name,
       token: token,
       kills: kills,
       alive: alive,
@@ -112,7 +112,7 @@ def game
   game = HTTParty.get('http://www.streetwars.net/api/games/1').parsed_response.to_json
 
   $redis[:game] = game
-  $redis.expire(:game, 600)
+  $redis.expire(:game, 60)
 
   JSON.parse($redis[:game], symbolize_names: true)
 end

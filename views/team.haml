@@ -1,13 +1,32 @@
-%h2
-    {{team.name}}
-    | ✝ {{team.kills}}
-    | ♡ {{team.alive}}
-    | ☠ {{team.dead}}
+%div{class: 'team', 'ng-class' => '{out: !team.competing}'}
+  .row
+    .col-sm-8
+      %div.pull-right
+        %span.label.label-success{'ng-if' => 'team.competing'} Competing
+        %span.label.label-danger{'ng-if' => '!team.competing'} Eliminated
+      %h2
+        {{$index + 1}} - {{team.name}}
 
-%assassin{'ng-repeat' => 'assassin in team.assassins | orderBy:"kills"', 'ng-class' => '{dead: !assassin.alive}'}
-    %img{'ng-src' => '{{assassin.avatar}}', 'ng-class' => '{missing: !assassing.avatar}'}
-    %h3
-        %span{'ng-if' => '!assassin.alive'} ☠
-        {{assassin.name}}
-        | ✝ {{assassin.kills}}
-
+      .players
+        .wrapper.clearfix
+          %a{'ng-href' => 'http://www.streetwars.net/#/games/1/a/{{assassin.assassin_token}}', target: '_blank', class: 'player', 'ng-class' => '{out: !assassin.alive}', 'ng-repeat' => 'assassin in team.assassins | orderBy:"-kills"'}
+            .image
+              %img{'ng-src' => '{{assassin.avatar}}'}
+            .name {{assassin.name}}
+            .kills
+              ({{assassin.kills}} kills)
+            .leader-badge{'ng-if' => 'assassin.teamleader'}
+              %span.label.label-warning Leader
+    .col-sm-4.clearfix
+      .counter
+        .count {{team.kills}}
+        %small KILLS
+      .counter{'ng-if' => '!team.solo'}
+        .count {{team.size}}
+        %small MEMBERS
+      .counter{'ng-if' => '!team.solo'}
+        .count {{team.alive}}
+        %small ALIVE
+      .counter{'ng-if' => '!team.solo'}
+        .count {{team.dead}}
+        %small DEAD
