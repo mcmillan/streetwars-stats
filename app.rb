@@ -4,7 +4,7 @@ Bundler.require
 Dotenv.load
 
 # Use redis for a bit of simple caching
-$redis = Redis.new
+$redis = Redis.new(url: ENV['REDISTOGO_URL'])
 
 class Assassin
   attr_accessor :name
