@@ -1,0 +1,13 @@
+%h2
+    {{team.name}}
+    | ✝ {{team.kills}}
+    | ♡ {{team.alive}}
+    | ☠ {{team.dead}}
+
+%assassin{'ng-repeat' => 'assassin in team.assassins | orderBy:"kills"', 'ng-class' => '{dead: !assassin.alive}'}
+    %img{'ng-src' => '{{assassin.avatar}}', 'ng-class' => '{missing: !assassing.avatar}'}
+    %h3
+        %span{'ng-if' => '!assassin.alive'} ☠
+        {{assassin.name}}
+        | ✝ {{assassin.kills}}
+

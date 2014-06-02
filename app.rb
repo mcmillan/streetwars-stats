@@ -141,6 +141,10 @@ get '/' do
   haml :index
 end
 
+get '/team.html' do
+  haml :team
+end
+
 get '/teams' do
   content_type :json
   JSON.pretty_generate(stats)

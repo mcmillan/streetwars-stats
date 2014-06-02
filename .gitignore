@@ -60,3 +60,5 @@ build/
 .rvmrc
 
 .env
+
+public/bower/

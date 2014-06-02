@@ -1,0 +1,21 @@
+{
+  "name": "streetwars-stats",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mcmillan/streetwars-stats",
+  "authors": [
+    "Jesse the Game <j.k.zwaan@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/bower",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.2.16",
+    "jquery": "~2.1.1"
+  }
+}
